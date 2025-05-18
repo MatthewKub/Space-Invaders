@@ -3,11 +3,27 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList; 
+import java.util.Random;
 import javax.swing.*;
 // Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
 
 public class SpaceInvaders extends JPanel implements ActionListener
 {
+    // Frame 
+    int tileSize = 32;
+    int rows = 16;
+    int columns = 16;
+    int frameWidth = tileSize * columns; // 32 & 16
+    int frameHeight = tileSize * rows; // 32 * 16
+
+
+    // Images
+    Image shipImage;
+    Image alienImage;
+    Image alienYellowImage;
+    Image alienMagentaImage;
+    ArrayList<Image>alienImageArray;
+
     class Block
     {
         int x, y, width, height;
@@ -25,20 +41,6 @@ public class SpaceInvaders extends JPanel implements ActionListener
         }
         
     }
-    // Frame 
-    int tileSize = 32;
-    int rows = 16;
-    int columns = 16;
-    int frameWidth = tileSize * columns; // 32 & 16
-    int frameHeight = tileSize * rows; // 32 * 16
-
-
-    // Images
-    Image shipImage;
-    Image alienImage;
-    Image alienYellowImage;
-    Image alienMagentaImage;
-    ArrayList<Image>alienImageArray;
 
     
     int shipWidth = tileSize * 2; // 64px
@@ -74,6 +76,7 @@ public class SpaceInvaders extends JPanel implements ActionListener
 
         // Game timer 
         var gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
+        gameLoop.start();
     }
 
     // Paint method 
@@ -90,7 +93,7 @@ public class SpaceInvaders extends JPanel implements ActionListener
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
+        repaint();
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
 
