@@ -2,7 +2,7 @@ package Src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 // Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
@@ -52,8 +52,6 @@ public class SpaceInvaders extends JPanel implements ActionListener
 
     //Timer gameLoop;
 
-    // Timestamp in Video: 21:05 minutes
-
     // Default Constructor 
     public SpaceInvaders()
     {
@@ -72,7 +70,7 @@ public class SpaceInvaders extends JPanel implements ActionListener
         alienImageArray.add(alienYellowImage);
         alienImageArray.add(alienMagentaImage);
 
-        var ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
+        ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
 
         // Game timer 
         var gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
@@ -92,7 +90,8 @@ public class SpaceInvaders extends JPanel implements ActionListener
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) 
+    {
         repaint();
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
