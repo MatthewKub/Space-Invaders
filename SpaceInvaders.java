@@ -2,12 +2,14 @@ package Src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 // Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
 
-public class SpaceInvaders extends JPanel implements ActionListener
+public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 {
     // Frame 
     int tileSize = 32;
@@ -42,11 +44,13 @@ public class SpaceInvaders extends JPanel implements ActionListener
         
     }
 
-    
+    // Ship Mechanics
     int shipWidth = tileSize * 2; // 64px
     int shipHeight = tileSize; // 32px
     int shipX = tileSize*columns/2 - tileSize; // moving  tiles to the right (minus 1 tile)
     int shipY = frameHeight - tileSize*2; // Placed at bottom of frame, but slightly above (2 tiles above)
+    int shipVelocityX = tileSize;
+
 
     Block ship; // possibly useless (delete)
 
@@ -90,10 +94,43 @@ public class SpaceInvaders extends JPanel implements ActionListener
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) 
+    public void actionPerformed(ActionEvent e)
     {
         repaint();
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) 
+    {
+
+
+
+        throw new UnsupportedOperationException("Unimplemented method 'keyTyped'");
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) 
+    {
+    
+
+        throw new UnsupportedOperationException("Unimplemented method 'keyPressed'");
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) 
+    {
+        if(e.getKeyCode() == KeyEvent.VK_LEFT)
+        {
+            ship.x -= shipVelocityX;
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+            ship.x += shipVelocityX;
+        }
+
+
+        throw new UnsupportedOperationException("Unimplemented method 'keyReleased'");
     }
 
 }
