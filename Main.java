@@ -24,5 +24,7 @@ public class Main
         frame.add(spaceInvaders);
         frame.pack();
         spaceInvaders.requestFocus();
+        spaceInvaders.setVisible(true);
+        
     }
 }

@@ -34,7 +34,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         boolean used = false; // Whether a bullet has been used or not
 
         Block(int x, int y, int width, int height, Image image)
-        {
+    {           
             this.x = x; 
             this.y = y; 
             this.width = width; 
@@ -61,6 +61,8 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
         setPreferredSize(new Dimension(frameWidth, frameHeight));
         setBackground(Color.BLACK);
+        setFocusable(true);
+        addKeyListener(this);
 
         // Pre-loading images
         shipImage = new ImageIcon(getClass().getResource("./ship.png")).getImage(); 
@@ -97,7 +99,6 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     public void actionPerformed(ActionEvent e)
     {
         repaint();
-        throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
 
     @Override
@@ -105,8 +106,6 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
 
 
-
-        throw new UnsupportedOperationException("Unimplemented method 'keyTyped'");
     }
 
     @Override
@@ -114,7 +113,6 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
     
 
-        throw new UnsupportedOperationException("Unimplemented method 'keyPressed'");
     }
 
     @Override
@@ -122,7 +120,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
-            ship.x -= shipVelocityX;
+            ship.x -= shipVelocityX; // ship.x = ship.x - shipVelocityX;
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
@@ -130,7 +128,6 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         }
 
 
-        throw new UnsupportedOperationException("Unimplemented method 'keyReleased'");
     }
 
 }
