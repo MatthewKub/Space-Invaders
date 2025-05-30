@@ -2,29 +2,15 @@ package Src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList; 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.*;
 // Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
 
-public class SpaceInvaders extends JPanel implements ActionListener
+public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 {
-    class Block
-    {
-        int x, y, width, height;
-        Image image;
-        boolean alive = true; // Alive status for aliens
-        boolean used = false; // Whether a bullet has been used or not
-
-        Block(int x, int y, int width, int height, Image image)
-        {
-            this.x = x; 
-            this.y = y; 
-            this.width = width; 
-            this.height = height;
-            this.image = image;
-        }
-        
-    }
     // Frame 
     int tileSize = 32;
     int rows = 16;
@@ -40,23 +26,44 @@ public class SpaceInvaders extends JPanel implements ActionListener
     Image alienMagentaImage;
     ArrayList<Image>alienImageArray;
 
-    
+    class Block
+    {
+        int x, y, width, height;
+        Image image;
+        boolean alive = true; // Alive status for aliens
+        boolean used = false; // Whether a bullet has been used or not
+        boolean AP_used = false; // Whether an AP bullet has been used or not (AP -- Armor Piercing) 
+
+        Block(int x, int y, int width, int height, Image image)
+    {           
+            this.x = x; 
+            this.y = y; 
+            this.width = width; 
+            this.height = height;
+            this.image = image;
+        }
+        
+    }
+
+    // Ship Mechanics
     int shipWidth = tileSize * 2; // 64px
     int shipHeight = tileSize; // 32px
     int shipX = tileSize*columns/2 - tileSize; // moving  tiles to the right (minus 1 tile)
     int shipY = frameHeight - tileSize*2; // Placed at bottom of frame, but slightly above (2 tiles above)
+    int shipVelocityX = tileSize;
+
 
     Block ship; // possibly useless (delete)
 
     //Timer gameLoop;
-
-    // Timestamp in Video: 21:05 minutes
 
     // Default Constructor 
     public SpaceInvaders()
     {
         setPreferredSize(new Dimension(frameWidth, frameHeight));
         setBackground(Color.BLACK);
+        setFocusable(true);
+        addKeyListener(this);
 
         // Pre-loading images
         shipImage = new ImageIcon(getClass().getResource("./ship.png")).getImage(); 
@@ -70,10 +77,11 @@ public class SpaceInvaders extends JPanel implements ActionListener
         alienImageArray.add(alienYellowImage);
         alienImageArray.add(alienMagentaImage);
 
-        var ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
+        ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
 
         // Game timer 
         var gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
+        gameLoop.start();
     }
 
     // Paint method 
@@ -89,9 +97,38 @@ public class SpaceInvaders extends JPanel implements ActionListener
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
+    public void actionPerformed(ActionEvent e)
+    {
+        repaint();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) 
+    {
+
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) 
+    {
+    
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) 
+    {
+        if(e.getKeyCode() == KeyEvent.VK_LEFT)
+        {
+            ship.x -= shipVelocityX; // ship.x = ship.x - shipVelocityX;
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+            ship.x += shipVelocityX;
+        }
+
+
     }
 
 }
