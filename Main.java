@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class Main
 {
-    public static void main(String[]args)
+    public static void main(String[]args) throws Exception
     {
         // JFrame Varriables 
         int tileSize = 32;
@@ -14,18 +14,17 @@ public class Main
 
         // JFrame Establishment 
         JFrame frame = new JFrame("Space Invaders");
-        frame.setSize(frameWidth, frameHeight);
         frame.setVisible(true);
+        frame.setSize(frameWidth, frameHeight);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         // JPanel
         var spaceInvaders = new SpaceInvaders();
         frame.add(spaceInvaders);
-        frame.add(spaceInvaders);
         frame.pack();
-        frame.setVisible(true);
-
+        spaceInvaders.requestFocus();
+        spaceInvaders.setVisible(true);
+        
     }
 }
