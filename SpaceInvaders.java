@@ -21,10 +21,21 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     // Images
     Image shipImage;
-    Image alienImage;
+    Image alienWhiteImage;
     Image alienYellowImage;
     Image alienMagentaImage;
     ArrayList<Image>alienImageArray;
+
+    // Aliens 
+    ArrayList<Block> alienArray;
+    int alienWidth = tileSize*2;
+    int alienHeight = tileSize;
+    int alienX = tileSize; // alien x-coordinate
+    int alienY = tileSize; // alien y-coordinate
+
+    int alienRows = 2;
+    int alienColumns = 3;
+    int alienCount = 0; // number of aliens required to be killed, to be updated in method "createAliens".
 
     class Block
     {
@@ -67,20 +78,22 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
         // Pre-loading images
         shipImage = new ImageIcon(getClass().getResource("./ship.png")).getImage(); 
-        alienImage = new ImageIcon(getClass().getResource("./alien.png")).getImage(); 
+        alienWhiteImage = new ImageIcon(getClass().getResource("./alien-white.png")).getImage(); 
         alienYellowImage = new ImageIcon(getClass().getResource("./alien-yellow.png")).getImage(); 
         alienMagentaImage = new ImageIcon(getClass().getResource("./alien-magenta.png")).getImage(); 
 
         alienImageArray = new ArrayList<Image>();
-        alienImageArray.add(shipImage);
-        alienImageArray.add(alienImage);
+        alienImageArray.add(alienWhiteImage);
         alienImageArray.add(alienYellowImage);
         alienImageArray.add(alienMagentaImage);
 
         ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
+        alienArray = new ArrayList<Block>(); //Note: alienArray must be an ArrayList, and not a 2D array as the number of aliens will be changing every round 
+        createAliens();
 
         // Game timer 
         var gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
+        //createAliens();
         gameLoop.start();
     }
 
@@ -92,8 +105,37 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     }
     public void draw(Graphics g) // to draw aliens, bullets, etc. 
     {
+        // Drawing ship 
         g.drawImage(ship.image, ship.x, ship.y, ship.width, ship.height, null); // Go to definition if required 
 
+        // Drawing aliens 
+        for(int i = 0; i < alienArray.size(); i++)
+        {
+            Block alien = alienArray.get(i);
+            if(alien.alive == true)
+            {
+                g.drawImage(alien.image, alien.x, alien.y, alien.width, alien.height, null);
+            }
+        }
+    }
+
+    public void createAliens()
+    {
+        Random random = new Random();
+        for(int r = 0; r < alienRows; r++)
+        {
+            for(int c = 0; c < alienColumns; c++)
+            {
+                //int randomImageIndex = (int) ((Math.random())*alienImageArray.size()); // Upper bound: Array Size ; Lower bound: 0
+                int randomImageIndex = random.nextInt(alienImageArray.size());
+                int Xcorr = alienX + c*alienWidth; // move j*alienWidth lengths to the right 
+                int Ycorr = alienY + r*alienHeight; // move i*alienHeight lengths to the bottom
+
+                Block alien = new Block(Xcorr, Ycorr, alienWidth, alienHeight, alienImageArray.get(randomImageIndex));
+                alienArray.add(alien);
+            }
+        }
+        alienCount = alienArray.size(); 
     }
 
     @Override
@@ -119,11 +161,25 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     @Override
     public void keyReleased(KeyEvent e) 
     {
+        /* 
+            TODO: Implement conditional check to determine whether a left or right movement of the player
+            will cause the player to go out of the bounds of the JFrame, if yes, prevent movement, otherwise no
+            restrictions required 
+
+         */
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
             ship.x -= shipVelocityX; // ship.x = ship.x - shipVelocityX;
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+            ship.x += shipVelocityX;
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_A)
+        {
+            ship.x -= shipVelocityX;
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_D)
         {
             ship.x += shipVelocityX;
         }
