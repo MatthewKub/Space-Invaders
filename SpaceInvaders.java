@@ -38,7 +38,14 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     int alienCount = 0; // number of aliens required to be killed, to be updated in method "createAliens".
     int alienVelocityX = 1; // Alien moving speed 
 
-    
+    // Standard Bullets
+    ArrayList<Block> bulletArray;
+    int bulletWidth = tileSize/8;
+    int bulletHeight = tileSize/2;
+    int bulletVelocityY = -10;
+
+    // Round 
+    int roundCount = 1;
 
 
     class Block
@@ -93,11 +100,11 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
         ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
         alienArray = new ArrayList<Block>(); //Note: alienArray must be an ArrayList, and not a 2D array as the number of aliens will be changing every round 
-        createAliens();
+        bulletArray = new ArrayList<Block>();
 
         // Game timer 
         var gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
-        //createAliens();
+        createAliens();
         gameLoop.start();
     }
 
@@ -107,6 +114,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         super.paintComponent(g); // call paint component of JPanel
         draw(g);
     }
+
     public void draw(Graphics g) // to draw aliens, bullets, etc. 
     {
         // Drawing ship 
@@ -119,6 +127,17 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             if(alien.alive == true)
             {
                 g.drawImage(alien.image, alien.x, alien.y, alien.width, alien.height, null);
+            }
+        }
+
+        // Drawing bullets
+        g.setColor(Color.white);
+        for(int i = 0; i < bulletArray.size(); i++)
+        {
+            Block bullet = bulletArray.get(i);
+            if(bullet.used == false)
+            {
+                g.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
             }
         }
     }
@@ -146,6 +165,42 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
                 }
             }
         }
+
+        /* Movement mechanics for bullet (Trajectory) */
+        for(int i = 0; i < bulletArray.size(); i++)
+        {
+            Block bullet = bulletArray.get(i);
+            bullet.y += bulletVelocityY;
+
+            for(int j = 0; j < alienArray.size(); j++)
+            {
+                Block alien = alienArray.get(j);
+                if(bullet.used == false & alien.alive == true & detectCollision(bullet, alien) == true)
+                {
+                    bullet.used = true;
+                    alien.alive = false;
+                    alienCount--;
+                }
+            }
+        }
+
+        // Bullet Cleanup 
+        while(bulletArray.size() > 0 && (bulletArray.get(0).used == true || bulletArray.get(0).y < 0))
+        {
+            bulletArray.remove(0);
+        }
+
+        // Level advancement
+        if(alienCount <= 0)
+        {
+            // increase the number of aliens in columns and rows by 1
+            alienColumns = Math.min(alienColumns + 1, columns/2 - 2);
+            alienRows = Math.min(alienRows + 1, rows - 6);
+            alienArray.clear();
+            bulletArray.clear();
+            createAliens();
+            roundCount++;
+        }
     }
 
     public void createAliens()
@@ -165,6 +220,11 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             }
         }
         alienCount = alienArray.size(); 
+    }
+
+    public boolean detectCollision(Block a, Block b)
+    {
+        return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
     }
 
     @Override
@@ -214,7 +274,17 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             ship.x += shipVelocityX;
         }
 
+        else if(e.getKeyCode() == KeyEvent.VK_SPACE)
+        {
+            Block bullet = new Block(ship.x + shipWidth*15/32, ship.y, bulletWidth, bulletHeight, null);
+            bulletArray.add(bullet);
+        }
 
+        else if(e.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+             Block bullet = new Block(ship.x + shipWidth*15/32, ship.y, bulletWidth, bulletHeight, null);
+            bulletArray.add(bullet);
+        }
     }
 
 }
