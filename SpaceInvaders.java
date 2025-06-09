@@ -155,8 +155,9 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         g.setFont(new Font("Arial", Font.PLAIN, 32));
         if(gameOver == true)
         {
-            g.drawString("Game Over! Score:" + String.valueOf(score), 10, 35);
-            g.drawString("Round: " + String.valueOf(roundCount), 10, 65);
+            g.drawString("Game Over!" , 10, 35);
+            g.drawString("Score: " + String.valueOf(score), 10, 65);
+            g.drawString("Round: " + String.valueOf(roundCount), 10, 95);
         }
         else
         {
@@ -258,6 +259,19 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
     }
 
+    public void boundaryException()
+    {
+        if(ship.x < 0) // 20 arbitrary number
+        {
+            ship.x += shipVelocityX;
+        }
+        else if(ship.x > frameWidth - 40)
+        {
+            ship.x -= shipVelocityX;
+        }
+
+    }
+
     @Override
     public void actionPerformed(ActionEvent e)
     {
@@ -312,18 +326,22 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
             ship.x -= shipVelocityX; // ship.x = ship.x - shipVelocityX;
+            boundaryException();
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
             ship.x += shipVelocityX;
+            boundaryException();
         }
         else if(e.getKeyCode() == KeyEvent.VK_A)
         {
             ship.x -= shipVelocityX;
+            boundaryException();
         }
         else if(e.getKeyCode() == KeyEvent.VK_D)
         {
             ship.x += shipVelocityX;
+            boundaryException();
         }
 
         else if(e.getKeyCode() == KeyEvent.VK_SPACE)
