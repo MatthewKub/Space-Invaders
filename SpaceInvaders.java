@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
+import java.io.*;
 // Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
 
 public class SpaceInvaders extends JPanel implements ActionListener, KeyListener, MouseListener
@@ -30,6 +31,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     // Aliens 
     ArrayList<Block> alienArray;
+    boolean[][] alienMap; // [row][column] tracker for each alien's alive status 
     int alienWidth = tileSize*2;
     int alienHeight = tileSize;
     int alienX = tileSize; // alien x-coordinate
@@ -136,6 +138,9 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
                 AP_CooldownTimer.stop();
             }
         });
+
+        // Highscore 
+        loadHighScore();
     }
 
     // Paint method 
@@ -190,6 +195,8 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             g.drawString("Game Over!" , 10, 35);
             g.drawString("Score: " + String.valueOf(score), 10, 65);
             g.drawString("Round: " + String.valueOf(roundCount), 10, 95);
+            g.drawString("High Score: " + highScore, 10, 125);
+            g.drawString("High Round: " + highRound, 10, 155);
         }
         else
         {
@@ -274,12 +281,14 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         // Bullet Cleanup 
         while(bulletArray.size() > 0 && (bulletArray.get(0).used == true || bulletArray.get(0).y < 0))
         {
-            bulletArray.remove(0);
+            // Method 1: bulletArray.remove(0);
+            clearBullets();
         }
         // AP Bullet Cleanup
         while(!APbulletArray.isEmpty() && APbulletArray.get(0).y < 0)
         {
-            APbulletArray.remove(0);
+            // Method 1: APbulletArray.remove(0);
+            clearAPBullets();
             AP_CollisionCount = 0;
         }
 
@@ -302,18 +311,19 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     public void createAliens()
     {
+        alienMap = new boolean[alienRows][alienColumns];
         Random random = new Random();
         for(int r = 0; r < alienRows; r++)
         {
             for(int c = 0; c < alienColumns; c++)
             {
-                //int randomImageIndex = (int) ((Math.random())*alienImageArray.size()); // Upper bound: Array Size ; Lower bound: 0
                 int randomImageIndex = random.nextInt(alienImageArray.size());
                 int Xcorr = alienX + c*alienWidth; // move j*alienWidth lengths to the right 
                 int Ycorr = alienY + r*alienHeight; // move i*alienHeight lengths to the bottom
 
                 Block alien = new Block(Xcorr, Ycorr, alienWidth, alienHeight, alienImageArray.get(randomImageIndex));
                 alienArray.add(alien);
+                alienMap[r][c] = true;
             }
         }
         alienCount = alienArray.size(); 
@@ -324,7 +334,27 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
     }
 
-    public void boundaryException()
+    public void clearBullets()
+    {
+        if(!bulletArray.isEmpty() && (bulletArray.get(0).used || bulletArray.get(0).y < 0))
+        {
+            bulletArray.remove(0);
+            clearBullets(); // Recursive Case 
+        }
+        // No base case required, will not enter 'if' statement if non satisfied
+    }
+
+    public void clearAPBullets()
+    {
+        if(!APbulletArray.isEmpty() && (APbulletArray.get(0).used || APbulletArray.get(0).y < 0))
+        {
+            APbulletArray.remove(0);
+            clearAPBullets(); // Recursive Case 
+        }
+        // No base case required, will not enter 'if' statement if non satisfied
+    }
+
+    public void boundaryException() // Boundary terms for Ship (Player) movement 
     {
         if(ship.x < 0) 
         {
@@ -344,6 +374,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         repaint();
         if(gameOver == true)
         {
+            saveHighScore();
             gameLoop.stop();
         }
     }
@@ -365,15 +396,6 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     @Override
     public void keyReleased(KeyEvent e) 
     {
-        /* 
-            TODO: Implement conditional check to determine whether a left or right movement of the player
-            will cause the player to go out of the bounds of the JFrame, if yes, prevent movement, otherwise no
-            restrictions required 
-
-            -- Completed 
-
-         */
-
         /* Reset Game Condition */
         if(gameOver == true)
         {
@@ -463,6 +485,78 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     public void mouseExited(MouseEvent e) 
     {
         
+    }
+
+
+
+/*
+    Highscore Implementation
+*/
+
+    File scoreFile = new File("highscore.txt");
+    int highScore = 0;
+    int highRound = 0;
+
+    public void loadHighScore()
+    {
+        try
+        {
+            BufferedReader reader = new BufferedReader(new FileReader(scoreFile));
+            PrintWriter writer = new PrintWriter(new FileWriter(scoreFile));
+
+            if(!scoreFile.exists()) // If no textfile is present, create one 
+            {
+                writer.println("0");
+                writer.println("0");
+                writer.close();
+            }
+
+            String line1 = reader.readLine();
+            String line2 = reader.readLine();
+
+            // If the file is empty (no present highscore)
+            if(line1 == null || line2 == null)
+            {
+                reader.close();
+                writer.println("0");
+                writer.println("0");
+                writer.close();
+                highScore = 0;
+                highRound = 0;
+            }
+            
+            else if(scoreFile.exists()) // if the file exists and highscores were present
+            {
+                highScore = Integer.parseInt(reader.readLine());
+                highRound = Integer.parseInt(reader.readLine());
+                reader.close();
+            }
+        }
+
+        catch(IOException e)
+        {
+            System.out.println("Runtime Error: Failed to load high score @" + e.getMessage());
+            highScore = 0; highRound = 0;
+        }
+    }
+
+    public void saveHighScore()
+    {
+        if(score > highScore || (score == highScore && roundCount > highRound))
+        {
+            try
+            {
+                PrintWriter writer = new PrintWriter(new FileWriter(scoreFile));
+                writer.println(score);
+                writer.println(roundCount);
+                writer.close();
+            }
+            
+            catch(IOException e)
+            {
+                System.out.println("Runtime Error: Failed to load high score @" + e.getMessage());
+            }
+        }
     }
 
 }
