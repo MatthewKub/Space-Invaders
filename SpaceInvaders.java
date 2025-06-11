@@ -38,24 +38,23 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     int alienRows = 2;
     int alienColumns = 3;
-    int alienCount = 0; // number of aliens required to be killed, to be updated in method "createAliens".
-    double alienVelocityX = 1; // Alien moving speed 
-    double alienVelocityX_Increase = 0.25;
+    int alienCount = 0; // updated in "createAliens" method
+    int alienVelocityX = 1; 
 
     // Standard Bullets
-    ArrayList<Block> bulletArray;
+    ArrayList<Block> bulletArray; // ArrayList to store each bullet as an object
     int bulletWidth = tileSize/8;
     int bulletHeight = tileSize/2;
-    int bulletVelocityY = -10;
+    int bulletVelocityY = -10; 
 
     // Armor-Piercing Rounds
     ArrayList<Block> APbulletArray;
     int APbulletWidth = tileSize/8;
     int APbulletHeight = tileSize/1;
     int APbulletVelocityY = -20;
-    int AP_CollisionCount = 0;
-    boolean AP_Ready = true;
-    Timer AP_CooldownTimer;
+    int AP_CollisionCount = 0; // In order to set a maximum of how many aliens an AP bullet can destroy (3 pen max)
+    boolean AP_Ready = true; // Conditional check on whether Cooldown Timer must start or not 
+    Timer AP_CooldownTimer; // Timer in order to restrict spam of AP rounds 
 
 
     // Round & Score 
@@ -88,14 +87,10 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     // Ship Mechanics
     int shipWidth = tileSize * 2; // 64px
     int shipHeight = tileSize; // 32px
-    int shipX = tileSize*columns/2 - tileSize; // moving  tiles to the right (minus 1 tile)
+    int shipX = tileSize*columns/2 - tileSize; // moving 'n' tiles to the right (minus 1 tile)
     int shipY = frameHeight - tileSize*2; // Placed at bottom of frame, but slightly above (2 tiles above)
     int shipVelocityX = tileSize;
-
-
-    Block ship; // possibly useless (delete)
-
-    //Timer gameLoop;
+    Block ship; 
 
     // Default Constructor 
     public SpaceInvaders()
@@ -118,16 +113,16 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         alienImageArray.add(alienMagentaImage);
 
         ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
-        alienArray = new ArrayList<Block>(); //Note: alienArray must be an ArrayList, and not a 2D array as the number of aliens will be changing every round 
+        alienArray = new ArrayList<Block>(); 
         bulletArray = new ArrayList<Block>();
         APbulletArray = new ArrayList<Block>();
 
         // Game timer 
-        gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
+        gameLoop = new Timer(1000/60, this); // define delay (60 fps)
         createAliens();
         gameLoop.start();
 
-        // AP Cooldown Timer (Resets every n seconds, in this case n = 1s)
+        // AP Cooldown Timer: (Resets every n seconds, in this case n = 1s)
         AP_CooldownTimer = new Timer(1000 , new ActionListener()
         {
             @Override
@@ -149,7 +144,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         draw(g);
     }
 
-    public void draw(Graphics g) // to draw aliens, bullets, etc. 
+    public void draw(Graphics g) // Draws all major components (aliens, bullets, etc.)
     {
         // Drawing ship 
         g.drawImage(ship.image, ship.x, ship.y, ship.width, ship.height, null); // Go to definition if required 
@@ -164,7 +159,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             }
         }
 
-        // Drawing bullets
+        // Drawing bullets (Standard)
         g.setColor(Color.white);
         for(int i = 0; i < bulletArray.size(); i++)
         {
@@ -186,7 +181,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             }
         }
 
-        // Drawing Score 
+        // Drawing Score & High Score
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.PLAIN, 32));
         if(gameOver == true)
@@ -206,7 +201,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     public void move()
     {
-        /* Movement Mechanics for Aliens (Left & Right, Up & Down)*/ 
+        /* Movement Mechanics for Aliens (Vertical & Horizontal) */ 
         for(int i = 0; i < alienArray.size(); i++)
         {
             Block alien = alienArray.get(i);
@@ -302,7 +297,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             APbulletArray.clear();
             AP_CollisionCount = 0;
             createAliens();
-            alienVelocityX += alienVelocityX_Increase;
+            alienVelocityX = 1;
             roundCount++;
             score += alienColumns * alienRows * 100;
         }
@@ -340,7 +335,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             bulletArray.remove(0);
             clearBullets(); // Recursive Case 
         }
-        // No base case required, will not enter 'if' statement if non satisfied
+        // No base case required, recursion will end if the 'if' statement is not satisfied
     }
 
     public void clearAPBullets()
@@ -350,7 +345,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             APbulletArray.remove(0);
             clearAPBullets(); // Recursive Case 
         }
-        // No base case required, will not enter 'if' statement if non satisfied
+        // No base case required, recursion will end if the 'if' statement is not satisfied
     }
 
     public void boundaryException() // Boundary terms for Ship (Player) movement 
