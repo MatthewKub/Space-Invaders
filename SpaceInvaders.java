@@ -38,7 +38,8 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     int alienRows = 2;
     int alienColumns = 3;
     int alienCount = 0; // number of aliens required to be killed, to be updated in method "createAliens".
-    int alienVelocityX = 1; // Alien moving speed 
+    double alienVelocityX = 1; // Alien moving speed 
+    double alienVelocityX_Increase = 0.25;
 
     // Standard Bullets
     ArrayList<Block> bulletArray;
@@ -47,6 +48,14 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     int bulletVelocityY = -10;
 
     // Armor-Piercing Rounds
+    ArrayList<Block> APbulletArray;
+    int APbulletWidth = tileSize/8;
+    int APbulletHeight = tileSize/1;
+    int APbulletVelocityY = -20;
+    int AP_CollisionCount = 0;
+    boolean AP_Ready = true;
+    Timer AP_CooldownTimer;
+
 
     // Round & Score 
     Timer gameLoop;
@@ -110,11 +119,23 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         ship  = new Block(shipX, shipY, shipWidth, shipHeight, shipImage);
         alienArray = new ArrayList<Block>(); //Note: alienArray must be an ArrayList, and not a 2D array as the number of aliens will be changing every round 
         bulletArray = new ArrayList<Block>();
+        APbulletArray = new ArrayList<Block>();
 
         // Game timer 
         gameLoop = new Timer(1000/60, this); // define delay (60 fps, )
         createAliens();
         gameLoop.start();
+
+        // AP Cooldown Timer (Resets every n seconds, in this case n = 1s)
+        AP_CooldownTimer = new Timer(1000 , new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                AP_Ready = true;
+                AP_CooldownTimer.stop();
+            }
+        });
     }
 
     // Paint method 
@@ -147,6 +168,17 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             if(bullet.used == false)
             {
                 g.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            }
+        }
+
+        // Drawing AP - bullets
+        g.setColor(Color.red);
+        for(int i = 0; i < APbulletArray.size(); i++)
+        {
+            Block APbullet = APbulletArray.get(i);
+            if(APbullet.used == false)
+            {
+                g.fillRect(APbullet.x, APbullet.y, APbullet.width, APbullet.height);
             }
         }
 
@@ -214,10 +246,41 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             }
         }
 
+        /* Movement mechanics for AP bullet (Trajectory) */
+        for(int i = 0; i < APbulletArray.size(); i++)
+        {
+            Block APbullet = APbulletArray.get(i);
+            APbullet.y += APbulletVelocityY;
+
+            for(int j = 0; j < alienArray.size(); j++)
+            {
+                Block alien = alienArray.get(j);
+                if(APbullet.used == false & alien.alive == true & detectCollision(APbullet, alien) == true)
+                {
+                    alien.alive = false;
+                    alienCount--;
+                    score += 100;
+                    AP_CollisionCount++;
+
+                    if(AP_CollisionCount >= 3)
+                    {
+                        APbullet.used = true;
+                        AP_CollisionCount = 0;
+                    }
+                }
+            }
+        }
+
         // Bullet Cleanup 
         while(bulletArray.size() > 0 && (bulletArray.get(0).used == true || bulletArray.get(0).y < 0))
         {
             bulletArray.remove(0);
+        }
+        // AP Bullet Cleanup
+        while(!APbulletArray.isEmpty() && APbulletArray.get(0).y < 0)
+        {
+            APbulletArray.remove(0);
+            AP_CollisionCount = 0;
         }
 
         // Level advancement
@@ -228,8 +291,10 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             alienRows = Math.min(alienRows + 1, rows - 6);
             alienArray.clear();
             bulletArray.clear();
+            APbulletArray.clear();
+            AP_CollisionCount = 0;
             createAliens();
-            alienVelocityX = 1;
+            alienVelocityX += alienVelocityX_Increase;
             roundCount++;
             score += alienColumns * alienRows * 100;
         }
@@ -261,13 +326,13 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
 
     public void boundaryException()
     {
-        if(ship.x < 0) // 20 arbitrary number
+        if(ship.x < 0) 
         {
-            ship.x += shipVelocityX;
+            ship.x = shipVelocityX * -1;
         }
-        else if(ship.x > frameWidth - 40)
+        else if(ship.x > frameWidth - 40) // 40 arbitrary number 
         {
-            ship.x -= shipVelocityX;
+            ship.x = shipVelocityX * -1;
         }
 
     }
@@ -305,6 +370,8 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             will cause the player to go out of the bounds of the JFrame, if yes, prevent movement, otherwise no
             restrictions required 
 
+            -- Completed 
+
          */
 
         /* Reset Game Condition */
@@ -313,6 +380,9 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             ship.x = shipX;
             alienArray.clear();
             bulletArray.clear();
+            AP_CooldownTimer.stop();
+            AP_Ready = true;
+            AP_CollisionCount = 0;
             score = 0;
             roundCount = 1;
             alienVelocityX = 1;
@@ -350,10 +420,15 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
             bulletArray.add(bullet);
         }
 
-        else if(e.getKeyCode() == KeyEvent.VK_ENTER)
+        else if(e.getKeyCode() == KeyEvent.VK_ENTER) // AP - Bullets 
         {
-            Block bullet = new Block(ship.x + shipWidth*15/32, ship.y, bulletWidth, bulletHeight, null);
-            bulletArray.add(bullet);
+            if(AP_Ready == true)
+            {
+                Block APbullet = new Block(ship.x + shipWidth*15/32, ship.y, APbulletWidth, APbulletHeight, null);
+                APbulletArray.add(APbullet);
+                AP_Ready = false;
+                AP_CooldownTimer.start();
+            }
         }
     }
 
