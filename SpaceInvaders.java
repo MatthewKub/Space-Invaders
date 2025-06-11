@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 import java.io.*;
-// Note: DO NOT import java.util.*, as the Game Loop timer will be confused with which timer class to call
 
 public class SpaceInvaders extends JPanel implements ActionListener, KeyListener, MouseListener
 {
@@ -18,8 +17,8 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     int tileSize = 32;
     int rows = 16;
     int columns = 16;
-    int frameWidth = tileSize * columns; // 32 & 16
-    int frameHeight = tileSize * rows; // 32 * 16
+    int frameWidth = tileSize * columns; 
+    int frameHeight = tileSize * rows; 
 
 
     // Images
@@ -27,7 +26,7 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     Image alienWhiteImage;
     Image alienYellowImage;
     Image alienMagentaImage;
-    ArrayList<Image>alienImageArray;
+    ArrayList<Image>alienImageArray; // ArrayList to hold alien images 
 
     // Aliens 
     ArrayList<Block> alienArray;
@@ -358,11 +357,11 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
         if(ship.x < 0) 
         {
-            ship.x = shipVelocityX * -1;
+            ship.x += shipVelocityX;
         }
         else if(ship.x > frameWidth - 40) // 40 arbitrary number 
         {
-            ship.x = shipVelocityX * -1;
+            ship.x -= shipVelocityX;
         }
 
     }
