@@ -6,10 +6,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
-import java.io.*;
+
+/*
+    Note: All comments past this point are for functionality and/or explanation, therefore no 
+          comment type indentation is necessary
+*/
+
 
 public class SpaceInvaders extends JPanel implements ActionListener, KeyListener, MouseListener
 {
@@ -102,10 +108,15 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
         addMouseListener(this);
 
         // Pre-loading images
-        shipImage = new ImageIcon(getClass().getResource("./ship.png")).getImage(); 
-        alienWhiteImage = new ImageIcon(getClass().getResource("./alien-white.png")).getImage(); 
-        alienYellowImage = new ImageIcon(getClass().getResource("./alien-yellow.png")).getImage(); 
-        alienMagentaImage = new ImageIcon(getClass().getResource("./alien-magenta.png")).getImage(); 
+        shipImage = new ImageIcon("ship.png").getImage();
+        alienWhiteImage = new ImageIcon("alien-white.png").getImage(); 
+        alienYellowImage = new ImageIcon("alien-yellow.png").getImage(); 
+        alienMagentaImage = new ImageIcon("alien-magenta.png").getImage(); 
+        
+        //shipImage = new ImageIcon(getClass().getResource("./ship.png")).getImage(); 
+        //alienWhiteImage = new ImageIcon(getClass().getResource("./alien-white.png")).getImage(); 
+        //alienYellowImage = new ImageIcon(getClass().getResource("./alien-yellow.png")).getImage(); 
+        //alienMagentaImage = new ImageIcon(getClass().getResource("./alien-magenta.png")).getImage(); 
 
         alienImageArray = new ArrayList<Image>();
         alienImageArray.add(alienWhiteImage);
@@ -495,28 +506,30 @@ public class SpaceInvaders extends JPanel implements ActionListener, KeyListener
     {
         try
         {
-            BufferedReader reader = new BufferedReader(new FileReader(scoreFile));
-            PrintWriter writer = new PrintWriter(new FileWriter(scoreFile));
 
             if(!scoreFile.exists()) // If no textfile is present, create one 
             {
+                PrintWriter writer = new PrintWriter(new FileWriter(scoreFile));
                 writer.println("0");
                 writer.println("0");
                 writer.close();
             }
 
+            BufferedReader reader = new BufferedReader(new FileReader(scoreFile));
             String line1 = reader.readLine();
             String line2 = reader.readLine();
+            reader.close();
 
             // If the file is empty (no present highscore)
             if(line1 == null || line2 == null)
             {
-                reader.close();
+                highScore = 0;
+                highRound = 0;
+
+                PrintWriter writer = new PrintWriter(new FileWriter(scoreFile));
                 writer.println("0");
                 writer.println("0");
                 writer.close();
-                highScore = 0;
-                highRound = 0;
             }
             
             else if(scoreFile.exists()) // if the file exists and highscores were present
